@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Encryption: Step-by-Step</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            margin: 20px;
+            background: #f9f9f9;
+
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 25px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        h1{
+            font-size: 2.4rem;
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+        }
+        .step {
+            margin-bottom: 30px;
+        }
+        ul {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AES Encryption: Step-by-Step Process</h1>
+        <p>Enter your message below. This tool will demonstrate each step of AES encryption and decryption.</p>
+
+        <!-- Input Field -->
+        <label for="userMessage">Message to Encrypt:</label>
+        <textarea id="userMessage" rows="3" placeholder="Type your message here"></textarea>
+
+        <button onclick="processAES()">Run AES Process</button>
+
+        <!-- Steps and Results -->
+        <div id="steps">
+            <div class="step" id="step1">
+                <h2>1. Input Message</h2>
+                <p>The original message entered by the user is:</p>
+                <pre id="inputMessage"></pre>
+            </div>
+
+            <div class="step" id="step2">
+                <h2>2. Generate Private Key</h2>
+                <p>A random private key is generated:</p>
+                <pre id="privateKey"></pre>
+                <p><strong>Explanation:</strong> The key is 128 bits (16 bytes) and is essential for both encryption and decryption.</p>
+            </div>
+
+            <div class="step" id="step3">
+                <h2>3. Encryption Steps</h2>
+                <h3>3.1 SubBytes</h3>
+                <p><strong>Theory:</strong> Each byte is substituted using a substitution box (S-box) to introduce non-linearity. This makes it difficult to predict how the bytes will change in subsequent steps.</p>
+                <p><strong>Mathematics:</strong> The S-box computes a new byte using the multiplicative inverse in GF(2⁸), followed by an affine transformation. In our simplified example, we XOR each byte with the value 0xAA to simulate this behavior.</p>
+                <pre id="subBytesCalc"></pre>
+                <pre id="subBytes"></pre>
+
+                <h3>3.2 ShiftRows</h3>
+                <p><strong>Theory:</strong> The rows of the state matrix are cyclically shifted to the left, creating horizontal diffusion of the data.</p>
+                <p><strong>Mathematics:</strong> Each row in the matrix is shifted by an incrementing number of positions to the left: the first row remains unchanged, the second row is shifted by 1, the third by 2, and so on. In our example, we reverse the order of the characters to simulate this effect.</p>
+                <pre id="shiftRowsCalc"></pre>
+                <pre id="shiftRows"></pre>
+
+                <h3>3.3 MixColumns</h3>
+                <p><strong>Theory:</strong> Each column of the state matrix is transformed using linear algebra operations in a finite field, creating vertical diffusion of the data. This step mixes the bytes within each column for increased complexity.</p>
+                <p><strong>Mathematics:</strong> Each column is multiplied by a predefined matrix in GF(2⁸). In our simplified example, we add 3 to each byte to simulate this transformation.</p>
+                <pre id="mixColumnsCalc"></pre>
+                <pre id="mixColumns"></pre>
+
+                <h3>3.4 AddRoundKey</h3>
+                <p><strong>Theory:</strong> The state matrix is XORed with a round key derived from the original encryption key. This binds the ciphertext to the key, ensuring it cannot be decrypted without it.</p>
+                <p><strong>Mathematics:</strong> For each byte of the message `m` and the round key `k`, the operation is `m XOR k`. The round key is generated from the original key through a process called key expansion. In our example, we XOR each character with a byte from the randomly generated key.</p>
+                <pre id="addRoundKeyCalc"></pre>
+                <pre id="addRoundKey"></pre>
+
+                <h3>Encrypted Message</h3>
+                <p><strong>Result:</strong> The final encrypted message, resulting from the iterative application of these steps, is:</p>
+                <pre id="encryptedMessage"></pre>
+            </div>
+
+            <div class="step" id="step4">
+                <h2>4. Decryption Steps</h2>
+                <h3>4.1 Reverse AddRoundKey</h3>
+                <p><strong>Theory:</strong> The XOR operation is reversible. Reapplying the same XOR with the round key restores the previous state.</p>
+                <p><strong>Mathematics:</strong> If `c = m XOR k`, then `m = c XOR k`. This allows us to reverse the operation and recover the previous message.</p>
+                <pre id="reverseAddRoundKey"></pre>
+
+                <h3>4.2 Reverse MixColumns</h3>
+                <p><strong>Theory:</strong> The MixColumns transformation is reversed by multiplying each column with the inverse of the original matrix used during encryption.</p>
+                <p><strong>Mathematics:</strong> Each column is multiplied by the inverse of the predefined matrix in GF(2⁸). In our simplified example, we subtract 3 from each byte to simulate this step.</p>
+                <pre id="reverseMixColumns"></pre>
+
+                <h3>4.3 Reverse ShiftRows</h3>
+                <p><strong>Theory:</strong> The rows of the matrix are cyclically shifted to the right, reversing the horizontal diffusion.</p>
+                <p><strong>Mathematics:</strong> Each row is shifted back by 0, 1, 2, etc., positions. In our example, we reverse the order of the characters again to simulate this operation.</p>
+                <pre id="reverseShiftRows"></pre>
+
+                <h3>4.4 Reverse SubBytes</h3>
+                <p><strong>Theory:</strong> Each byte is substituted using the inverse S-box, undoing the effect of the SubBytes step during encryption.</p>
+                <p><strong>Mathematics:</strong> Each byte `y` in the ciphertext is transformed back to `x` using the inverse S-box. In our simplified example, we apply an XOR with 0xAA to restore the original value.</p>
+                <pre id="reverseSubBytes"></pre>
+
+                <h3>Decrypted Message</h3>
+                <p><strong>Result:</strong> The recovered plaintext message, obtained by reversing the encryption steps, is:</p>
+                <pre id="decryptedMessage"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to simulate AES encryption and show the calculation steps
+        function simulateIntermediateSteps(message, key) {
+            const mockResult = {};
+            
+            // Simulate SubBytes step (XOR each byte with 0xAA for simplicity)
+            mockResult.subBytesCalc = message.split('').map(ch => `Byte ${ch.charCodeAt(0)} XOR 0xAA = ${ch.charCodeAt(0) ^ 0xAA}`).join('\n');
+            mockResult.subBytes = message.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) ^ 0xAA)).join('');
+            
+            // Simulate ShiftRows step (just reversing the string for simplicity)
+            mockResult.shiftRowsCalc = `Shift each row cyclically to the left. Example: Reverse the order of characters: ${mockResult.subBytes.split('').reverse().join('')}`;
+            mockResult.shiftRows = mockResult.subBytes.split('').reverse().join('');
+            
+            // Simulate MixColumns step (add 3 to each byte for simplicity)
+            mockResult.mixColumnsCalc = mockResult.shiftRows.split('').map(ch => `Byte ${ch.charCodeAt(0)} + 3 = ${ch.charCodeAt(0) + 3}`).join('\n');
+            mockResult.mixColumns = mockResult.shiftRows.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) + 3)).join('');
+            
+            // Simulate AddRoundKey (XOR with key for simplicity)
+            mockResult.addRoundKeyCalc = `XOR the mixColumns result with the key. Example: XOR character ${mockResult.mixColumns.charCodeAt(0)} with key ${key.charCodeAt(0)}`;
+            mockResult.addRoundKey = CryptoJS.enc.Utf8.parse(mockResult.mixColumns).toString();
+            
+            return mockResult;
+        }
+
+        // Function to reverse the AES encryption steps
+        function reverseIntermediateSteps(encryptedMessage) {
+            const mockResult = {};
+            
+            // Reverse AddRoundKey (same as original AddRoundKey)
+            mockResult.reverseAddRoundKey = encryptedMessage;
+            
+            // Reverse MixColumns (subtract 3 for simplicity)
+            mockResult.reverseMixColumns = encryptedMessage.split('').map(ch => String.fromCharCode(ch.charCodeAt(0) - 3)).join('');
+            
+            // Reverse ShiftRows (reverse the string again)
+            mockResult.reverseShiftRows = mockResult.reverseMixColumns.split('').reverse().join('');
+            
+            // Reverse SubBytes (XOR with 0xAA for simplicity)
+            mockResult.reverseSubBytes = mockResult.reverseShiftRows.split('').map(ch => `Byte ${ch.charCodeAt(0)} XOR 0xAA = ${ch.charCodeAt(0) ^ 0xAA}`).join('\n');
+            
+            return mockResult;
+        }
+
+        // Main AES processing function
+        function processAES() {
+            const message = document.getElementById("userMessage").value;
+            if (!message) {
+                alert("Please enter a message to encrypt.");
+                return;
+            }
+            document.getElementById("inputMessage").textContent = message;
+
+            const privateKey = CryptoJS.lib.WordArray.random(16).toString();
+            document.getElementById("privateKey").textContent = privateKey;
+
+            const encryptionSteps = simulateIntermediateSteps(message, privateKey);
+
+            // Display the calculation steps before results
+            document.getElementById("subBytesCalc").textContent = encryptionSteps.subBytesCalc;
+            document.getElementById("subBytes").textContent = encryptionSteps.subBytes;
+            
+            document.getElementById("shiftRowsCalc").textContent = encryptionSteps.shiftRowsCalc;
+            document.getElementById("shiftRows").textContent = encryptionSteps.shiftRows;
+            
+            document.getElementById("mixColumnsCalc").textContent = encryptionSteps.mixColumnsCalc;
+            document.getElementById("mixColumns").textContent = encryptionSteps.mixColumns;
+            
+            document.getElementById("addRoundKeyCalc").textContent = encryptionSteps.addRoundKeyCalc;
+            document.getElementById("addRoundKey").textContent = encryptionSteps.addRoundKey;
+
+            // Perform AES encryption
+            const encryptedMessage = CryptoJS.AES.encrypt(message, privateKey).toString();
+            document.getElementById("encryptedMessage").textContent = encryptedMessage;
+
+            const decryptionSteps = reverseIntermediateSteps(encryptedMessage);
+            document.getElementById("reverseAddRoundKey").textContent = decryptionSteps.reverseAddRoundKey;
+            document.getElementById("reverseMixColumns").textContent = decryptionSteps.reverseMixColumns;
+            document.getElementById("reverseShiftRows").textContent = decryptionSteps.reverseShiftRows;
+            document.getElementById("reverseSubBytes").textContent = decryptionSteps.reverseSubBytes;
+
+            // Perform AES decryption
+            const decryptedMessage = CryptoJS.AES.decrypt(encryptedMessage, privateKey).toString(CryptoJS.enc.Utf8);
+            document.getElementById("decryptedMessage").textContent = decryptedMessage;
+        }
+    </script>
+
+    <br><br>
+    <!-- Detailed Explanation of AES -->
+    <div class="container">
+        <h1>Understanding AES (Advanced Encryption Standard)</h1>
+        <p>
+            AES (Advanced Encryption Standard) is a symmetric block cipher that encrypts and decrypts data in fixed-sized blocks of 16 bytes (128 bits). It is widely used due to its efficiency, security, and versatility. AES operates on data in the form of a <strong>state matrix</strong>, which is a 4x4 grid of bytes. The algorithm performs a series of transformations to this matrix over multiple rounds, depending on the key size.
+        </p>
+        <h2>Key Features of AES</h2>
+        <ul>
+            <li><strong>Block Size:</strong> Fixed at 128 bits (16 bytes).</li>
+            <li><strong>Key Sizes:</strong> Can be 128, 192, or 256 bits.</li>
+            <li><strong>Rounds:</strong>
+                <ul>
+                    <li>10 rounds for 128-bit keys.</li>
+                    <li>12 rounds for 192-bit keys.</li>
+                    <li>14 rounds for 256-bit keys.</li>
+                </ul>
+            </li>
+            <li><strong>Symmetric Encryption:</strong> The same key is used for both encryption and decryption.</li>
+        </ul>
+
+        <h2>Steps of AES Encryption</h2>
+        <ol>
+            <li><strong>Input Transformation:</strong> The plaintext message is divided into 16-byte blocks. If the message length is not a multiple of 16 bytes, padding is added. Each block is converted into a state matrix for processing.</li>
+            <li><strong>Key Expansion:</strong> The encryption key is expanded into multiple round keys using a process called <em>Key Expansion</em>. These keys are derived using the original key, the Rijndael S-box, and a series of transformations.</li>
+            <li><strong>Initial Round:</strong> <em>AddRoundKey</em> step XORs the state matrix with the first round key.</li>
+            <li><strong>Main Rounds:</strong> Each round (except the last) consists of:
+                <ul>
+                    <li><em>SubBytes:</em> Substitutes bytes using a substitution box (S-box) for non-linearity.</li>
+                    <li><em>ShiftRows:</em> Shifts rows cyclically to the left for horizontal diffusion.</li>
+                    <li><em>MixColumns:</em> Mixes bytes within each column using matrix multiplication in a finite field.</li>
+                    <li><em>AddRoundKey:</em> XORs the state matrix with the current round key.</li>
+                </ul>
+            </li>
+            <li><strong>Final Round:</strong> Excludes the <em>MixColumns</em> step and consists of SubBytes, ShiftRows, and AddRoundKey.</li>
+            <li><strong>Output:</strong> The final state matrix is converted back into a sequence of bytes, forming the encrypted ciphertext.</li>
+        </ol>
+
+        <h2>Steps of AES Decryption</h2>
+        <p>
+            AES decryption reverses the encryption process, using the same key and number of rounds. The steps include:
+        </p>
+        <ol>
+            <li><strong>Reverse AddRoundKey:</strong> XORs the ciphertext with the last round key.</li>
+            <li><strong>Reverse Main Rounds:</strong> Each round consists of:
+                <ul>
+                    <li><em>Inverse ShiftRows:</em> Shifts rows cyclically to the right.</li>
+                    <li><em>Inverse SubBytes:</em> Substitutes bytes using the inverse S-box.</li>
+                    <li><em>Inverse MixColumns:</em> Applies the inverse of the matrix multiplication in a finite field.</li>
+                    <li><em>AddRoundKey:</em> XORs the state matrix with the round key.</li>
+                </ul>
+            </li>
+            <li><strong>Final Round:</strong> Excludes the <em>Inverse MixColumns</em> step and applies the inverse of ShiftRows and SubBytes, followed by AddRoundKey.</li>
+            <li><strong>Output:</strong> Converts the state matrix back to the original plaintext message.</li>
+        </ol>
+
+        <h2>Mathematical Operations in AES</h2>
+        <ul>
+            <li><strong>SubBytes:</strong> Substitutes bytes using the Rijndael S-box for non-linearity.</li>
+            <li><strong>ShiftRows:</strong> Provides horizontal diffusion by cyclically shifting rows in the state matrix.</li>
+            <li><strong>MixColumns:</strong> Mixes bytes within each column using matrix multiplication in GF(2⁸).</li>
+            <li><strong>AddRoundKey:</strong> XORs the state matrix with the round key.</li>
+            <li><strong>Key Expansion:</strong> Generates round keys using XOR operations, S-box substitutions, and round constants.</li>
+        </ul>
+
+        <h2>Security of AES</h2>
+        <p>
+            AES is considered secure due to its:
+        </p>
+        <ul>
+            <li><strong>Key Length:</strong> Longer keys increase resistance to brute-force attacks.</li>
+            <li><strong>Non-linearity:</strong> Introduced by the S-box, which resists linear cryptanalysis.</li>
+            <li><strong>Diffusion:</strong> Ensured by ShiftRows and MixColumns, making it difficult to trace changes in ciphertext back to plaintext.</li>
+        </ul>
+
+        <h2>Applications of AES</h2>
+        <p>
+            AES is widely used in:
+        </p>
+        <ul>
+            <li>Secure communications (e.g., HTTPS, TLS).</li>
+            <li>File and disk encryption.</li>
+            <li>Wireless security (e.g., WPA2).</li>
+            <li>Cryptographic libraries and standards (e.g., OpenSSL).</li>
+        </ul>
+    </div>
+
+    <br><br>
+    <!-- Statistical Explanation of AES -->
+    <div class="container">
+        <h1>Statistical Analysis of AES</h1>
+        <p><strong>Understanding AES Encryption from a Statistical Perspective:</strong></p>
+    
+        <h3>1. Uniformity of Output</h3>
+        <p>
+            AES encryption ensures that ciphertext statistically appears random:
+            <ul>
+                <li><strong>Avalanche Effect:</strong> A single bit change in plaintext or key causes approximately 50% of the ciphertext bits to change unpredictably.</li>
+                <li><strong>Random Bit Distribution:</strong> Statistical tests confirm that the ciphertext bits have an even distribution, with each bit having a 50% chance of being 0 or 1.</li>
+            </ul>
+        </p>
+    
+        <h3>2. Key Space and Brute-Force Resistance</h3>
+        <p>
+            AES's key size ensures an immense key space, making brute-force attacks statistically infeasible:
+            <ul>
+                <li><strong>Key Space Size:</strong> For 128-bit keys, there are \(2^{128}\) possible keys (~\(3.4 \times 10^{38}\)), growing exponentially for larger keys.</li>
+                <li><strong>Brute-Force Challenges:</strong> Even with advanced technology, the time required to exhaustively search the key space is astronomically high.</li>
+            </ul>
+        </p>
+    
+        <h3>3. Diffusion and Confusion</h3>
+        <p>
+            AES achieves security through diffusion and confusion, eliminating observable patterns:
+            <ul>
+                <li><strong>Confusion:</strong> The SubBytes and AddRoundKey steps ensure nonlinear transformations, obscuring relationships between plaintext, ciphertext, and keys.</li>
+                <li><strong>Diffusion:</strong> The ShiftRows and MixColumns steps spread small changes in plaintext across the entire ciphertext.</li>
+            </ul>
+        </p>
+    
+        <h3>4. Resistance to Cryptanalytic Attacks</h3>
+        <p>
+            AES is statistically designed to resist known attacks:
+            <ul>
+                <li><strong>Linear Cryptanalysis:</strong> High non-linearity minimizes exploitable patterns between input and output.</li>
+                <li><strong>Differential Cryptanalysis:</strong> Small differences in input lead to statistically uncorrelated differences in output.</li>
+            </ul>
+        </p>
+    
+        <h3>5. Randomness of Key Schedule</h3>
+        <p>
+            AES's key schedule generates round keys that are statistically independent and highly random, ensuring no predictable patterns from the original key.
+        </p>
+    
+        <h3>6. Modes of Operation and Statistical Behavior</h3>
+        <p>
+            Different modes of operation have distinct statistical implications:
+            <ul>
+                <li><strong>ECB Mode:</strong> Identical plaintext blocks result in identical ciphertext blocks, making it unsuitable for sensitive data due to visible patterns.</li>
+                <li><strong>CBC, CTR, and GCM Modes:</strong> Introduce randomness (e.g., initialization vectors) to ensure even identical plaintext blocks produce different ciphertext.</li>
+            </ul>
+        </p>
+    
+        <h3>7. Statistical Validation</h3>
+        <p>
+            Cryptographic validation tools confirm AES's statistical robustness:
+            <ul>
+                <li><strong>NIST Randomness Tests:</strong> Ensure high entropy, uniform distribution, and lack of autocorrelation in ciphertext.</li>
+                <li><strong>Bias Analysis:</strong> Differential and linear cryptanalysis detect and quantify potential exploitable statistical biases.</li>
+            </ul>
+        </p>
+    
+        <h3>8. Real-World Implications</h3>
+        <p>
+            AES's statistical properties have critical applications:
+            <ul>
+                <li><strong>High Entropy:</strong> Ciphertext is indistinguishable from random noise.</li>
+                <li><strong>Compression Resistance:</strong> Patterns in compressed plaintext do not carry over to ciphertext.</li>
+                <li><strong>Metadata Leakage:</strong> Improper modes (e.g., ECB) can leak patterns even if plaintext is secure.</li>
+            </ul>
+        </p>
+    
+        <p>
+            By eliminating patterns, ensuring randomness, and resisting statistical analysis, AES establishes itself as a cornerstone of modern cryptography.
+        </p>
+    </div>
+
+</body>
+</html>
